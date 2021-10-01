@@ -265,38 +265,7 @@ class Utility(commands.Cog):
     def cog_unload(self):
         self.bot.help_command = self._original_help_command
 
-    @commands.command()
-    @checks.has_permissions(PermissionLevel.REGULAR)
-    @utils.trigger_typing
-    async def changelog(self, ctx, version: str.lower = ""):
-        """Shows the changelog of the Modmail."""
-        changelog = await Changelog.from_url(self.bot)
-        version = version.lstrip("v") if version else changelog.latest_version.version
 
-        try:
-            index = [v.version for v in changelog.versions].index(version)
-        except ValueError:
-            return await ctx.send(
-                embed=discord.Embed(
-                    color=self.bot.error_color,
-                    description=f"The specified version `{version}` could not be found.",
-                )
-            )
-
-        paginator = EmbedPaginatorSession(ctx, *changelog.embeds)
-        try:
-            paginator.current = index
-            await paginator.run()
-        except asyncio.CancelledError:
-            pass
-        except Exception:
-            try:
-                await paginator.close()
-            finally:
-                logger.warning("Failed to display changelog.", exc_info=True)
-                await ctx.send(
-                    f"View the changelog here: {changelog.latest_version.changelog_url}#v{version[::2]}"
-                )
 
     @commands.command(aliases=["info"])
     @checks.has_permissions(PermissionLevel.REGULAR)
